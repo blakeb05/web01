@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Love Story Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container quiz-container">
+        <div class="decorative-border"></div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="quiz-content">
+            <div class="question-container" id="questionContainer">
+                <!-- Questions will be loaded dynamically -->
+            </div>
+            
+            <div class="navigation-buttons">
+                <button class="nav-btn prev-btn" id="prevBtn" onclick="previousQuestion()" style="display: none;">
+                    ← Previous
+                </button>
+                <button class="nav-btn next-btn" id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                    Next →
+                </button>
+            </div>
+        </div>
+        
+        <div class="floating-petals">
+            <span class="petal">🌸</span>
+            <span class="petal">🌹</span>
+            <span class="petal">🌺</span>
+            <span class="petal">🌻</span>
+            <span class="petal">🌷</span>
+        </div>
+        
+        <div class="romantic-decals">
+            <div class="decal left-decal">🦋</div>
+            <div class="decal right-decal">🦋</div>
+        </div>
+    </div>
+
+    <script src="quiz.js"></script>
+</body>
+</html>
