@@ -7,7 +7,8 @@ const quizData = [
             "Your kind eyes 👁️",
             "Your amazing laugh 😄",
             "Your wonderful personality ✨"
-        ]
+        ],
+        correctAnswer: 0
     },
     {
         question: "Which moment made you realize you had feelings for me?",
@@ -16,7 +17,8 @@ const quizData = [
             "When you helped me during a difficult time 🤝",
             "Our first date together 💕",
             "When I saw how you care for others 💖"
-        ]
+        ],
+        correctAnswer: 2
     },
     {
         question: "What's your favorite memory of us together?",
@@ -25,7 +27,8 @@ const quizData = [
             "When we got caught in the rain and laughed 🌧️",
             "Our spontaneous adventure day 🎡",
             "Just talking for hours about everything 💬"
-        ]
+        ],
+        correctAnswer: 0
     },
     {
         question: "What do you love most about our relationship?",
@@ -34,7 +37,8 @@ const quizData = [
             "The way we support each other's dreams 🌟",
             "Our inside jokes and shared laughter 😂",
             "How we can be completely ourselves 💯"
-        ]
+        ],
+        correctAnswer: 1
     },
     {
         question: "If you could describe our love in one word, what would it be?",
@@ -43,7 +47,8 @@ const quizData = [
             "Eternal ♾️",
             "Beautiful 🌹",
             "Perfect 💖"
-        ]
+        ],
+        correctAnswer: 3
     },
     {
         question: "What do you see in our future together?",
@@ -52,7 +57,8 @@ const quizData = [
             "A cozy home filled with love 🏡",
             "Growing old together gracefully 👫",
             "Creating beautiful memories every day 📸"
-        ]
+        ],
+        correctAnswer: 1
     },
     {
         type: "proposal",
@@ -102,11 +108,24 @@ function showRegularQuestion(question) {
         </div>
     `;
     
+    // Hide next button initially - user must answer correctly first
+    document.getElementById('nextBtn').style.display = 'none';
+    
     // Pre-select previous answer if going back
     if (userAnswers[currentQuestion] !== undefined) {
         const selectedButton = questionContainer.querySelector(`[data-index="${userAnswers[currentQuestion]}"]`);
         if (selectedButton) {
-            selectedButton.classList.add('selected');
+            selectedButton.classList.add('correct');
+            selectedButton.disabled = true;
+            
+            // Show next button if question was already answered correctly
+            setTimeout(() => {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            }, 100);
+            
+            // Disable all buttons since question is already answered
+            const allButtons = questionContainer.querySelectorAll('.answer-btn');
+            allButtons.forEach(btn => btn.disabled = true);
         }
     }
 }
@@ -133,19 +152,48 @@ function showProposalQuestion(question) {
 }
 
 function selectAnswer(answerIndex) {
-    userAnswers[currentQuestion] = answerIndex;
-    
-    // Update button states
+    const question = quizData[currentQuestion];
     const buttons = document.querySelectorAll('.answer-btn');
-    buttons.forEach((btn, index) => {
-        btn.classList.remove('selected');
-        if (index === answerIndex) {
-            btn.classList.add('selected');
-        }
+    
+    // Clear previous states
+    buttons.forEach(btn => {
+        btn.classList.remove('selected', 'correct', 'incorrect');
+        btn.disabled = false;
     });
     
-    // Show next button
-    document.getElementById('nextBtn').style.display = 'inline-block';
+    // Check if answer is correct
+    if (answerIndex === question.correctAnswer) {
+        // Correct answer
+        buttons[answerIndex].classList.add('correct');
+        userAnswers[currentQuestion] = answerIndex;
+        
+        // Show success message
+        showFeedback("Correct! 💖", "success");
+        
+        // Show next button after short delay
+        setTimeout(() => {
+            document.getElementById('nextBtn').style.display = 'inline-block';
+        }, 1000);
+        
+        // Disable all buttons
+        buttons.forEach(btn => btn.disabled = true);
+        
+    } else {
+        // Wrong answer
+        buttons[answerIndex].classList.add('incorrect');
+        
+        // Show feedback
+        showFeedback("Try again, my love! 💕", "error");
+        
+        // Temporarily disable the wrong button
+        buttons[answerIndex].disabled = true;
+        
+        // Re-enable after 1 second
+        setTimeout(() => {
+            buttons[answerIndex].disabled = false;
+            buttons[answerIndex].classList.remove('incorrect');
+        }, 1500);
+    }
 }
 
 function handleProposalAnswer(answerIndex) {
@@ -214,6 +262,44 @@ function previousQuestion() {
     if (currentQuestion > 0) {
         currentQuestion--;
         showQuestion();
+    }
+}
+
+function showFeedback(message, type) {
+    // Remove existing feedback
+    const existingFeedback = document.querySelector('.feedback-message');
+    if (existingFeedback) {
+        existingFeedback.remove();
+    }
+    
+    // Create feedback element
+    const feedback = document.createElement('div');
+    feedback.className = `feedback-message ${type}`;
+    feedback.innerHTML = message;
+    
+    // Insert after the answers
+    const answersContainer = document.querySelector('.answers');
+    answersContainer.parentNode.insertBefore(feedback, answersContainer.nextSibling);
+    
+    // Animate in
+    setTimeout(() => {
+        feedback.style.opacity = '1';
+        feedback.style.transform = 'translateY(0)';
+    }, 10);
+    
+    // Remove after delay for error messages
+    if (type === 'error') {
+        setTimeout(() => {
+            if (feedback.parentNode) {
+                feedback.style.opacity = '0';
+                feedback.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    if (feedback.parentNode) {
+                        feedback.remove();
+                    }
+                }, 300);
+            }
+        }, 2000);
     }
 }
 
@@ -346,6 +432,59 @@ particleStyle.textContent = `
             opacity: 0; 
             transform: translateY(100vh) rotate(720deg); 
         }
+    }
+    
+    /* Answer button states */
+    .answer-btn.correct {
+        background: linear-gradient(45deg, #2ecc71, #27ae60) !important;
+        color: white !important;
+        border-color: #27ae60 !important;
+        transform: scale(1.05) !important;
+        box-shadow: 0 8px 25px rgba(46, 204, 113, 0.4) !important;
+    }
+    
+    .answer-btn.incorrect {
+        background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
+        color: white !important;
+        border-color: #c0392b !important;
+        transform: scale(0.95) !important;
+        animation: shake 0.5s ease-in-out !important;
+    }
+    
+    .answer-btn:disabled {
+        cursor: not-allowed !important;
+        opacity: 0.7 !important;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0) scale(0.95); }
+        25% { transform: translateX(-5px) scale(0.95); }
+        75% { transform: translateX(5px) scale(0.95); }
+    }
+    
+    /* Feedback messages */
+    .feedback-message {
+        margin-top: 20px;
+        padding: 15px 20px;
+        border-radius: 15px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-align: center;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+    }
+    
+    .feedback-message.success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border: 2px solid #c3e6cb;
+    }
+    
+    .feedback-message.error {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border: 2px solid #f5c6cb;
     }
 `;
 document.head.appendChild(particleStyle);
